@@ -23,12 +23,15 @@ sudo dpkg -i elasticsearch-7.17.22-amd64.deb
 sudo -i service elasticsearch start
 sudo -i service elasticsearch stop
 ```
-проверим работоспособность
 
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1.jpg)  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_2.jpg)  
+
+Изменим имя кластера  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_3.jpg)  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_4.jpg)  
+
+проверим работоспособность
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_5.jpg)  
      
 
@@ -42,9 +45,16 @@ sudo -i service elasticsearch stop
 ## Решение 2
   
 ```
-
+wget https://artifacts.elastic.co/downloads/kibana/kibana-7.17.22-amd64.deb
+ 
+sudo dpkg -i kibana-7.17.22-amd64.deb
+sudo systemctl start kibana.service
+sudo systemctl enable kibana.service
 ```
-
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_1.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_2.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_3.jpg)  
 
 ## Задание 3. Logstash
 
