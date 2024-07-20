@@ -43,7 +43,7 @@ sudo -i service elasticsearch stop
 
 
 ## Решение 2
-  
+ Установим и запустим Kibana.
 ```
 wget https://artifacts.elastic.co/downloads/kibana/kibana-7.17.22-amd64.deb
  
@@ -52,8 +52,14 @@ sudo systemctl start kibana.service
 sudo systemctl enable kibana.service
 ```
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2.jpg)  
+
+Исправим конфигурационный файл для прослушивания всех ip  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_1.jpg)  
+
+Войдем в web интерфейс Kibana.  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_2.jpg)  
+
+выполним запрос GET /_cluster/health?pretty.  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image2_3.jpg)  
 
 ## Задание 3. Logstash
