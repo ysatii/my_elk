@@ -10,11 +10,27 @@
 
 ### Приведите скриншот команды 'curl -X GET 'localhost:9200/_cluster/health?pretty', сделанной на сервере с установленным Elasticsearch. Где будет виден нестандартный cluster_name.
 
-## Решение 1.
-```
+## Решение 1.  
+Создадим машину на яндекс облаке с операционной системой Debian 10  
+
+произведем ручную установку согласно инструкии https://www.elastic.co/guide/en/elasticsearch/reference/7.17/deb.html
 
 ```
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.22-amd64.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.22-amd64.deb.sha512
+shasum -a 512 -c elasticsearch-7.17.22-amd64.deb.sha512 
+sudo dpkg -i elasticsearch-7.17.22-amd64.deb
+sudo -i service elasticsearch start
+sudo -i service elasticsearch stop
+```
+проверим работоспособность
 
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_2.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_3.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_4.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image1_5.jpg)  
+     
 
 ## Задание 2. Kibana
  
