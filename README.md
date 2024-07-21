@@ -69,25 +69,125 @@ sudo systemctl enable kibana.service
 ### Приведите скриншот интерфейса Kibana, на котором видны логи Nginx.
 
 ## Решение 3
-1. `Установим Logstash`
+1. `Создадим docker-compose файл для решения данной задачи`
 ```
-apt install logstash
-systemctl daemon-reload
-systemctl enable logstash.service
-systemctl start logstash.service
+ version: "3.9"
+services:
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - 9200:9200
+    volumes:
+      - ./deploy/esdata:/usr/share/elasticsearch/data
+    # helth curl -s http://127.0.0.1:9200/_cluster/health
+    # indexes curl http://127.0.0.1:9200/_cat/indices/ 
+
+  kibana:
+    image: kibana:8.12.2
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200 
+
+  logstash:
+    image: logstash:8.12.2
+    user: root #сменил дефолтного юзера на рута
+    environment:
+       
+      ES_HOST: "elasticsearch:9200"
+    ports:
+      - "5044:5044/udp"
+    volumes:
+      - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml
+      - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines
+      - ./nginxlog:/usr/share/logstash/nginx
+    depends_on:
+          - elasticsearch
+          - nginx
+    
+  nginx:
+    image: nginx:1.25
+    ports:
+      - 80:80
+    volumes:
+      - ./nginxlog:/var/log/nginx 
+    restart: always
 ```
+
+Рассмотри кофигурацию nginx  
+nginx:  
+......  
+volumes:  
+      - ./nginxlog:/var/log/nginx - служит пробрасыания папки с логами в том nginxlog  
+
+
+
+Рассмотри кофигурацию  logstash  
+Секция input настроена на изменеия в файле access.log сервиса nginx  
+Секция  filter настроена на обработку формата лога nginx, удаляя поле host, для анализа статусов в логах оно не нужно, 
+Секция output передает данные в http://elasticsearch:9200 в сервис elasticsearch  
+index => "nginx-%{+YYYY.MM.dd}" - создает индекс  
+```
+input {
+  file {
+    path => "/usr/share/logstash/nginx/access.log"
+    start_position => "beginning"
+  }
+}
+
+
+filter {
+    grok {
+        match => { "message" => "%{IPORHOST:remote_ip} - %{DATA:user_name}
+        \[%{HTTPDATE:access_time}\] \"%{WORD:http_method} %{DATA:url}
+        HTTP/%{NUMBER:http_version}\" %{NUMBER:response_code} %{NUMBER:body_sent_bytes}
+        \"%{DATA:referrer}\" \"%{DATA:agent}\"" }
+    }
+    mutate {
+        remove_field => [ "host" ]
+    }
+}
+
+output {
+  stdout {}
+  elasticsearch {
+    hosts => "http://elasticsearch:9200"
+    index => "nginx-%{+YYYY.MM.dd}"
+    # data_stream => "true"
+  }
+}
+
+```
+ 
+Нужные нам контейнеры в работе!! 
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3.jpg)  
 
-2. `Установим Nginx`
-```
-apt install nginx
-systemctl nginx
-systemctl enable nginx
-systemctl start nginx
-```
+
+обновим страницу http://localhost/  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_1.jpg)  
+данное действие запишет новую строку в лог файл ngnix!  
+Также logstash отправит информацию в elasticsearch  
+
+просмотрим на лог контейнера logstash   
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_2.jpg)  
 
+
+В интерфейсе видим новый индекс nginx-2024.07.21  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_3.jpg)  
+
+
+Создадим новое представление для данных  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_4.jpg)  
+
+
+Данные поступают, это нужный нам лог /usr/share/logstash/nginx/access.log  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_5.jpg)  
 
 ## Задание 4. Filebeat
 
