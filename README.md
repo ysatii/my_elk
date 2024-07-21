@@ -202,9 +202,135 @@ output {
 
 ## Решение 4
 
+1. `Создадим docker-compose файл для решения данной задачи`
+```
+version: "3.9"
+services:
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - 9200:9200
+    volumes:
+      - ./deploy/esdata:/usr/share/elasticsearch/data
+    # helth curl -s http://127.0.0.1:9200/_cluster/health
+    # indexes curl http://127.0.0.1:9200/_cat/indices/ 
+
+  kibana:
+    image: kibana:8.12.2
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200 
+
+  logstash:
+    image: logstash:8.12.2
+    environment:
+      # Так как сейчас вы хотите запустить logstash без Elasticsearch, 
+      # необходимо отключить встроенный мониторинг, отправляющий данные в ES
+      ES_HOST: "elasticsearch:9200"
+    ports:
+      - "5044:5044/udp"
+    volumes:
+      - ./configs/logstash/config.yml:/usr/share/logstash/config/logstash.yml
+      - ./configs/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines
+    depends_on:
+          - elasticsearch
+    
+  filebeat:
+    image: elastic/filebeat:8.12.2
+    volumes:
+      - ./app:/var/log/app/:ro
+      - ./configs/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./nginxlog:/usr/share/logstash/nginx
+    depends_on:
+      - logstash
+      - elasticsearch
+      - kibana
+
+
+  nginx:
+    image: nginx:1.25
+    ports:
+      - 80:80
+    volumes:
+      - ./nginxlog:/var/log/nginx 
+    restart: always
+```
+
+пропишем настройки filebeat  
+```
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/logstash/nginx/access.log
+
+    fields:
+      service: nginx
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"] 
+```
+это нужный нам лог /usr/share/logstash/nginx/access.log nginx  
+ hosts: ["logstash:5044"]  Данные передаються в logstash  
+  
+пропишем настройки  logstash
+```
+input {
+  beats {
+    port => 5044
+  }
+}
+
+
+filter {
+    grok {
+        match => { "message" => "%{IPORHOST:remote_ip} - %{DATA:user_name}
+        \[%{HTTPDATE:access_time}\] \"%{WORD:http_method} %{DATA:url}
+        HTTP/%{NUMBER:http_version}\" %{NUMBER:response_code} %{NUMBER:body_sent_bytes}
+        \"%{DATA:referrer}\" \"%{DATA:agent}\"" }
+
+    }
+    mutate {
+        remove_field => [ "host" ]
+    }
+  
+}
 
 
 
+output {
+  stdout {
+  }
+  elasticsearch {
+      hosts => [ "${ES_HOST}" ]
+      index => "logs_app_nginx_%-%{+YYYY.MM.dd}"
+  } 
+} 
+```
+port => 5044 - beats  
+
+
+необходимые нам контейнеры в работе  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image4.jpg)  
+
+появился созданный нами индекс logs_app_nginx_%-2024.07.21  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image4_1.jpg)  
+
+Создадим новое представление для данных  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image4_2.jpg)  
+
+
+ 
+Ссылка на данное решение  
+[файл](https://github.com/ysatii/my_elk/tree/main/4)  
 
 
 
