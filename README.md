@@ -69,6 +69,24 @@ sudo systemctl enable kibana.service
 ### Приведите скриншот интерфейса Kibana, на котором видны логи Nginx.
 
 ## Решение 3
+1. `Установим Logstash`
+```
+apt install logstash
+systemctl daemon-reload
+systemctl enable logstash.service
+systemctl start logstash.service
+```
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3.jpg)  
+
+2. `Установим Nginx`
+```
+apt install nginx
+systemctl nginx
+systemctl enable nginx
+systemctl start nginx
+```
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_1.jpg)  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_2.jpg)  
 
 
 ## Задание 4. Filebeat
