@@ -327,7 +327,8 @@ port => 5044 - beats
 Создадим новое представление для данных  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image4_2.jpg)  
 
-
+Данные поступают из filebeat  
+![alt text](https://github.com/ysatii/my_elk/blob/main/img/image4_3.jpg)  
  
 Ссылка на данное решение  
 [файл](https://github.com/ysatii/my_elk/tree/main/4)  
