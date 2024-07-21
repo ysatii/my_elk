@@ -1,0 +1,12 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/logstash/nginx/access.log
+
+    fields:
+      service: nginx
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"] 

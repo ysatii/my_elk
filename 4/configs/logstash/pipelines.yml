@@ -1,0 +1,18 @@
+- pipeline.id: service_stamped_json_logs
+  pipeline.workers: 1
+  pipeline.batch.size: 1
+  #path.config: "/usr/share/logstash/config/pipelines/udp_service_logs.conf"
+  #path.config: "/usr/share/logstash/config/pipelines/udp_service_logs_es.conf"
+  #path.config: "/usr/share/logstash/config/pipelines/gen_service_logs.conf"
+  
+  #path.config: "/usr/share/logstash/config/pipelines/lognginx.conf"
+  path.config: "/usr/share/logstash/config/pipelines/ngix_service_fb.conf"
+  
+
+
+
+
+# - pipeline.id: service_stamped_redis
+#   pipeline.workers: 1
+#   pipeline.batch.size: 1
+#   path.config: "/usr/share/logstash/config/pipelines/service_stamped_redis.conf.conf"
