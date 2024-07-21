@@ -189,6 +189,11 @@ output {
 Данные поступают, это нужный нам лог /usr/share/logstash/nginx/access.log  
 ![alt text](https://github.com/ysatii/my_elk/blob/main/img/image3_5.jpg)  
 
+
+Ссылка на данное решение  
+[файл](https://github.com/ysatii/my_elk/tree/main/3)  
+
+
 ## Задание 4. Filebeat
 
 1. `Установите и запустите Filebeat. Переключите поставку логов Nginx с Logstash на Filebeat.`
